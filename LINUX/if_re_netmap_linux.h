@@ -99,7 +99,6 @@ re_netmap_txsync(struct netmap_kring *kring, int flags)
 
 	/* device-specific */
 	struct SOFTC_T *sc = netdev_priv(ifp);
-	void __iomem *ioaddr = sc->mmio_addr;
 
 	rmb();
 
@@ -142,7 +141,7 @@ re_netmap_txsync(struct netmap_kring *kring, int flags)
 
 		sc->cur_tx = nic_i;
 		wmb(); /* synchronize writes to the NIC ring */
-		RTL_W8(TxPoll, NPQ);	/* start ? */
+		RTL_W8(sc, TxPoll, NPQ);	/* start ? */
 	}
 
 	/*
@@ -310,7 +309,7 @@ re_netmap_rx_init(struct SOFTC_T *sc)
 	 * XXX we use all slots, so no '-1' here
 	 * XXX do we need -1 instead ?
 	 */
-	lim = na->num_rx_desc /* - 1 */ - nm_kr_rxspace(&na->rx_rings[0]);
+	lim = na->num_rx_desc /* - 1 */ - nm_kr_rxspace(na->rx_rings[0]);
 	for (i = 0; i < lim; i++) {
 		l = netmap_idx_n2k(na->rx_rings[0], i);
 		PNMB(na, slot + l, &paddr);

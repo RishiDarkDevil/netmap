@@ -112,8 +112,9 @@ subsys enable generic
 subsys enable null
 subsys enable ptnetmap
 
+# rishidarkdevil: update driver name from `r8169.c` to `realtek`
 # available drivers
-driver_avail="stmmac r8169.c virtio_net.c forcedeth.c veth.c \
+driver_avail="stmmac realtek virtio_net.c forcedeth.c veth.c \
 	e1000 e1000e igb igc ixgbe ixgbevf ice i40e vmxnet3 mlx5"
 # enabled drivers (bitfield)
 driver=
@@ -902,7 +903,13 @@ for d in $(drv print); do
 	drv_patch=
 	drv_build=
 	drv_distclean=
-	drv_conf="CONFIG_$(basename "$d" .c | tr a-z- A-Z_)"
+	# rishidarkdevil: since, we changed the driver name the code couldn't find `CONF_R8169` in `ksrc/.config` which lead to warnings
+	# showing disabling driver. So, fixed that by adding that as a if-else condition.
+	if [ "$d" = "realtek" ]; then
+		drv_conf="CONFIG_R8169"
+	else
+		drv_conf="CONFIG_$(basename "$d" .c | tr a-z- A-Z_)"
+	fi
 	# possibly override from config.mak
 	eval "$(make -snrf read-vars.mak "$d"@vars E_DRIVERS="$e_drivers")"
 
@@ -953,10 +960,12 @@ EOF
 	if [ -z "$drv_src" ]; then
 		# if the user has asked for the patched drivers, we also need the
 		# full kernel sources. Since we may have put $src=$ksrc, and $ksrc
-		# may only contain header files, we check that $src/drivers actually
+		# may only contain header files, we check that $src/drivers/net/ethernet actually
 		# contains some .c file
+		# rishidarkdevil: now there are several folders named as realtek in the new versions of the kernel
+		# so, I need to be specific about which folder I am talking about i.e. inside /drivers/net/ethernet
 		if [ -z "$src_checked" ]; then
-			if [ ! -d "$src" ] || [ -z "$(find "$src/drivers" -name '*.c' -print -quit)" ]; then {
+			if [ ! -d "$src" ] || [ -z "$(find "$src/drivers/net/ethernet" -name '*.c' -print -quit)" ]; then {
 				cat <<EOF
 Cannot find full kernel sources.
 
@@ -988,9 +997,10 @@ EOF
 			fi
 			src_checked=1
 		fi
+		# rishidarkdevil: same here as the above reason on line 965
 		drv_kernel_src=
 		if [ -n "$src_found" ]; then
-			drv_kernel_src=$(find "$src"/drivers/ -name "$d" -print -quit)
+			drv_kernel_src=$(find "$src"/drivers/net/ethernet -name "$d" -print -quit)
 		fi
 		if [ -z "$drv_kernel_src" ]; then
 			drverror <<EOF
@@ -2033,12 +2043,14 @@ EOF
   fi # e1000e
 
   # rtl8169
-  if drv enabled r8169.c; then
+  # rishidarkdevil: since, we are importing a folder now, I change the include headers in the following two scripts.
+  # And that's it.
+  if drv enabled realtek; then
 
-  add_file_exists_check r8169.c true "drv_source_error r8169.c"
+  add_file_exists_check realtek/r8169_main.c true "drv_source_error realtek"
 
   add_test 'define RTL_OPEN rtl8169_open' 'define RTL_OPEN rtl_open' <<EOF
-  	#include "r8169.c"
+  	#include "realtek/r8169_main.c"
 
   	static int dummy(struct net_device *dev) {
   		return rtl8169_open(dev);
@@ -2046,13 +2058,13 @@ EOF
 EOF
 
   add_test 'have RTL_WFQ' <<EOF
-  	#include "r8169.c"
+  	#include "realtek/r8169_main.c"
 
   	static void dummy(struct net_device *dev) {
   		rtl8169_wait_for_quiescence(dev);
   	}
 EOF
-  fi # r8169.c
+  fi # r8169_main.c
 
   # ixgbe
   if drv enabled ixgbe; then

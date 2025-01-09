@@ -1,0 +1,74 @@
+diff --git a/realtek/r8169_main.c b/realtek/r8169_main.c
+index e421332..0887cdc 100644
+--- a/realtek/r8169_main.c
++++ b/realtek/r8169_main.c
+@@ -684,6 +684,10 @@ MODULE_FIRMWARE(FIRMWARE_8125B_2);
+ MODULE_FIRMWARE(FIRMWARE_8126A_2);
+ MODULE_FIRMWARE(FIRMWARE_8126A_3);
+ 
++#if defined(CONFIG_NETMAP) || defined(CONFIG_NETMAP_MODULE)
++#include <if_re_netmap_linux.h>
++#endif
++
+ static inline struct device *tp_to_dev(struct rtl8169_private *tp)
+ {
+ 	return &tp->pci_dev->dev;
+@@ -4002,6 +4006,12 @@ static int rtl8169_rx_fill(struct rtl8169_private *tp)
+ {
+ 	int i;
+ 
++	#ifdef DEV_NETMAP
++		re_netmap_tx_init(tp);
++		if (re_netmap_rx_init(tp))
++			return 0; // success
++	#endif /* DEV_NETMAP */
++
+ 	for (i = 0; i < NUM_RX_DESC; i++) {
+ 		struct page *data;
+ 
+@@ -4506,6 +4516,11 @@ static void rtl_tx(struct net_device *dev, struct rtl8169_private *tp,
+ 	unsigned int dirty_tx, bytes_compl = 0, pkts_compl = 0;
+ 	struct sk_buff *skb;
+ 
++	#ifdef DEV_NETMAP
++		if (netmap_tx_irq(dev, 0))
++			return;
++	#endif /* DEV_NETMAP */
++
+ 	dirty_tx = tp->dirty_tx;
+ 
+ 	while (READ_ONCE(tp->cur_tx) != dirty_tx) {
+@@ -4567,6 +4582,11 @@ static int rtl_rx(struct net_device *dev, struct rtl8169_private *tp, int budget
+ 	struct device *d = tp_to_dev(tp);
+ 	int count;
+ 
++	#ifdef DEV_NETMAP
++		if (netmap_rx_irq(dev, 0, &count))
++	   		return count;
++	#endif /* DEV_NETMAP */
++
+ 	for (count = 0; count < budget; count++, tp->cur_rx++) {
+ 		unsigned int pkt_size, entry = tp->cur_rx % NUM_RX_DESC;
+ 		struct RxDesc *desc = tp->RxDescArray + entry;
+@@ -5062,6 +5082,10 @@ static void rtl_remove_one(struct pci_dev *pdev)
+ 	if (IS_ENABLED(CONFIG_R8169_LEDS))
+ 		r8169_remove_leds(tp->leds);
+ 
++	#ifdef DEV_NETMAP
++		netmap_detach(tp->dev);
++	#endif /* DEV_NETMAP */
++
+ 	unregister_netdev(tp->dev);
+ 
+ 	if (tp->dash_type != RTL_DASH_NONE)
+@@ -5614,6 +5638,10 @@ static int rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 
+ 	if (pci_dev_run_wake(pdev))
+ 		pm_runtime_put_sync(&pdev->dev);
++	
++	#ifdef DEV_NETMAP
++		re_netmap_attach(tp);
++	#endif /* DEV_NETMAP */
+ 
+ 	return 0;
+ }
