@@ -1,0 +1,3 @@
+sudo bridge -i vale:x}1 -i vale:x{2 # bridge run it on a separate terminal
+sudo pkt-gen -i vale:x}2 -f rx # reciever run it on one terminal
+sudo pkt-gen -i vale:x{1 -f tx # transmitter run it on another terminal

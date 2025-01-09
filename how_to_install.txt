@@ -1,0 +1,8 @@
+# the following code compiles and installs netmap
+./configure --no-drivers --enable-vale --enable-pipe --enable-monitor --enable-ptnetmap --enable-sink
+make #(Run it twice `netmap.ko` will be genereted)
+make apps
+sudo make install
+
+# load netmap module
+sudo insmod netmap.ko

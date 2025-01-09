@@ -15,6 +15,9 @@ cache/
 cnic_if.h
 e1000/
 e1000e*/
+LINUX/realtek/
+LINUX/tests
+LINUX/GNUmakefile
 forcedeth.c
 xen-netfront.c
 r8169.c

@@ -1,0 +1,14 @@
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_mem2.o
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_mbq.o
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_legacy.o
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_bdg.o
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_kloop.o
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_vale.o
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_offloadings.o
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_pipe.o
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_monitor.o
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_generic.o
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_null.o
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_common.o
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_linux.o
+/home/rishidarkdevil/Desktop/netmap/LINUX/netmap_ptnet.o
