@@ -129,7 +129,7 @@ sudo insmod ./realtek/r8169.ko
 ```
 Start the interface.
 ```bash
-sudo ifconfig eth0 up # and same for others
+sudo ifconfig enp4s0 up # and same for others
 ```
 
 ## Test Netmap
