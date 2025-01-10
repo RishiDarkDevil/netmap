@@ -142,4 +142,13 @@ sudo pkt-gen -i enp4s0 -f tx -w 2 -s <SOME SOURCE IP> -d <SOME DESTINATION IP>
 ```
 Here, `enp4s0` is my ethernet network interface name you can get yours using `ip a` command.
 
+## Performance Note
+Due to unavailability of two linux machines, I was not able to test out the receive `rx` performance using `pkt-gen`. But the above `tx` performance is,
+- 149 Kpps on 100Mb/s line.
+- ~400 Kpps on 1Gb/s line. (This is a known performance caveat related to `r8169` mentioned in the original netmap page [here](https://github.com/luigirizzo/netmap/tree/master#lower-speed-than-line-rate))
+  
+This is roughly the same as the generic/emulated adapter, which seems unsurprising given that the card is not a high-speed card and the CPU can handle 1 GBps without bottlenecking, as mentioned [here](https://github.com/luigirizzo/netmap/issues/966#issuecomment-2353000565).
+
+But major performance gain is seen in terms of CPU usage. The emulated adapter uses over 50% of a cpu core on 100Mb/s and roughly 90-100% on 1000Mb/s line, whereas the native adapter shows less than 10% cpu usage. This can be explained by the interrupts being captured by Netmap in the patched driver code rather than reaching the CPU.
+
 If you find this useful, consider showing your love by starring this repo :)
