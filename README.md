@@ -149,6 +149,9 @@ Due to unavailability of two linux machines, I was not able to test out the rece
   
 This is roughly the same as the generic/emulated adapter, which seems unsurprising given that the card is not a high-speed card and the CPU can handle 1 GBps without bottlenecking, as mentioned [here](https://github.com/luigirizzo/netmap/issues/966#issuecomment-2353000565).
 
-But major performance gain is seen in terms of CPU usage. The emulated adapter uses over 50% of a cpu core on 100Mb/s and roughly 90-100% on 1000Mb/s line, whereas the native adapter shows less than 10% cpu usage. This can be explained by the interrupts being captured by Netmap in the patched driver code rather than reaching the CPU.
+But major performance gain is seen in terms of CPU usage (measured using `htop`). The emulated adapter uses over 50% of a cpu core on 100Mb/s and roughly 90-100% on 1000Mb/s line, whereas the native adapter shows less than 10% cpu usage. This can be explained by the interrupts being captured by Netmap in the patched driver code rather than reaching the CPU. The following code shows the interrupts and the counter stops incrementing when `pkt-gen` is running with native netmap driver. In contrast, it increases at a speedy rate with the emulated driver.
+```
+watch -n1 'grep enp4s0 /proc/interrupts'
+```
 
 If you find this useful, consider showing your love by starring this repo :)
