@@ -1,0 +1,6 @@
+Add the following portion after the `if defined(linux)` in `sys/dev/netmap_kern.h` file:
+#ifndef CONFIG_NETMAP_DEBUG
+#define CONFIG_NETMAP_DEBUG
+#endif
+
+Now, you will have the `debug` parameter available in `/sys/module/netmap/parameters/`: Use the numbers mentioned in the `netmap_ker.h`'s enum for printing particular debug messages.

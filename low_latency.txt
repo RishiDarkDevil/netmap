@@ -1,0 +1,9 @@
+# shows the energy-efficient ethernet settings on the interface
+sudo ethtool --show-eee enp4s0
+# disable it for slightly lower latency
+sudo ethtool --set-eee enp4s0 eee off
+
+# shows interrupt coalescing setting on the interface
+ethtool -c enp4s0
+# set the rx interrupt coalescing setting on the interface
+sudo ethtool -C enp4s0 rx-usecs 0 rx-frames 0

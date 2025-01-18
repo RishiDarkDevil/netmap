@@ -1,8 +1,37 @@
-# the following code compiles and installs netmap
-./configure --no-drivers --enable-vale --enable-pipe --enable-monitor --enable-ptnetmap --enable-sink
-make #(Run it twice `netmap.ko` will be genereted)
+./configure --kernel-sources=/usr/src/linux-source-6.11.0 --no-ext-drivers --drivers=realtek --enable-vale --enable-pipe --enable-monitor --enable-ptnetmap --enable-sink
+**********************************  NOTE   **********************************
+*** Running some preliminary tests to customize the build environment.
+*****************************************************************************
+**********************************  NOTE   **********************************
+*** Now running compile tests to adapt the code to your
+*** kernel version. Please wait.
+*****************************************************************************
+kernel directory            /lib/modules/6.11.0-13-generic/build
+                            [/usr/src/linux-headers-6.11.0-13-generic]
+kernel sources              /usr/src/linux-source-6.11.0
+linux version               60b00  [6.11]
+module file                 netmap.ko
+
+subsystems                  null sink ptnetmap generic monitor pipe vale 
+apps                        dedup vale-ctl nmreplay tlem lb bridge pkt-gen 
+native drivers              realtek 
+
+Contents of the drivers.mak file:
+realtek@conf := CONFIG_R8169
+realtek@src := cp -Rp /usr/src/linux-source-6.11.0/drivers/net/ethernet/realtek realtek
+realtek@patch := patches/vanilla--realtek--60000--99999
+
+make
+... output not shown ...
+
 make apps
+
 sudo make install
 
-# load netmap module
-sudo insmod netmap.ko
+sudo rmmod r8169
+
+sudo insmod ./netmap.ko
+sudo insmod ./realtek/r8169.ko
+
+sudo ifconfig enp4s0 up # and same for others
+
